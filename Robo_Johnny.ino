@@ -7,9 +7,11 @@
 #define pinEcho A1
 #define pinBuzzer A2
 #define pinServo 10
+#define pinMotor1PWM 11
+#define pinMotor2PWM 3
 
 // DEFINIÇÕES DE PARAMETROS
-#define distObstaculo 10 // DISTANCIA EM CM PARA CONSIDERAR
+#define distObstaculo 30 // DISTANCIA EM CM PARA CONSIDERAR
 #define tempoLeitura 50 // INTERVALO MINIMO ENTRE CADA LEITURA
 #define medidaDist 5 // QUANTIDADE DE MEDIDAS QUE SERAO ARMAZENADAS
 
@@ -45,6 +47,9 @@ void setup() {
   #endif
 
   pinMode(pinBuzzer, OUTPUT);
+  pinMode(pinMotor1PWM, OUTPUT);
+  pinMode(pinMotor2PWM, OUTPUT);
+  
   servo.attach(pinServo);
 
   servo.write(angulo);
@@ -67,27 +72,7 @@ void setup() {
 }
 
 void loop() {
-  // VALIDAR LEITURA
-  validarLeitura(tempoLeitura);
-
-  if (validarLeitura) {
-    medidaSensor[posicao] = obstaculo;
-    posicao++;
-
-    for (byte i = 0; i < medidaDist; i++) {
-      if (medidaSensor[i] == 1) contaObstaculo++;
-    }
-
-    validarParada();
-
-    ligarBuzzer(validarParada());
-
-    contaObstaculo = 0;
-
-    if(posicao > medidaDist) {
-      posicao = 0;
-    }
-  }
+  pensar();
 }
 
 void pensar() {
