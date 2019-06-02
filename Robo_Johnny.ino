@@ -16,7 +16,6 @@
 
 // DECLARAÇÃO DE VARIAVEIS
 bool obstaculo = false;
-bool parar = false;
 bool novaLeitura;
 bool medidaSensor[medidaDist]; // ARRAY PARA ARMAZENAR OS ULTIMOS VALORES
 byte posicao;
@@ -26,6 +25,10 @@ unsigned long controleLeitura; // VARIAVEL PARA CONTROLAR TEMPO ENTRE AS LEITURA
 // INSTANCIANDO OBJETOS
 HCSR04 sensorHCSR04(pinTrig, pinEcho);
 
+// INSTANCIANDO METODOS
+bool validarLeitura(int tempo);
+bool validarParada(bool freio);
+void ligarBuzzer(bool freio);
 
 void setup() {
   #ifdef DEBUG
@@ -55,9 +58,33 @@ void setup() {
 }
 
 void loop() {
-  novaLeitura = false;
+  // VALIDAR LEITURA
+  validarLeitura(tempoLeitura);
 
-  if (millis() - controleLeitura > tempoLeitura) {
+  if (validarLeitura) {
+    medidaSensor[posicao] = obstaculo;
+    posicao++;
+
+    for (byte i = 0; i < medidaDist; i++) {
+      if (medidaSensor[i] == 1) contaObstaculo++;
+    }
+
+    validarParada();
+
+    ligarBuzzer(validarParada());
+
+    contaObstaculo = 0;
+
+    if(posicao > medidaDist) {
+      posicao = 0;
+    }
+  }
+}
+
+bool validarLeitura(int tempo) {
+  novaLeitura = false;
+  
+  if (millis() - controleLeitura > tempo) {
     if (sensorHCSR04.dist() <= distObstaculo) {
       obstaculo = true;
       novaLeitura = true;
@@ -69,42 +96,35 @@ void loop() {
     controleLeitura = millis();
   }
 
-  if (novaLeitura == true) {
-    medidaSensor[posicao] = obstaculo;
-    posicao++;
+  return novaLeitura;
+}
 
-    for (byte i = 0; i < medidaDist; i++) {
-      if (medidaSensor[i] == 1) contaObstaculo++;
+bool validarParada() {
+  static bool parar = false;
+  
+  if (contaObstaculo >= ((medidaDist/2) + 1)) {
+    if (parar == false) {
+      parar = true;
+
+      Serial.println("PARA!!!");
+
+      // tone(pinBuzzer, 2500, 100);
     }
+  } else {
+    if (parar == true) {
+      parar = false;
 
-    if (contaObstaculo >= ((medidaDist/2) + 1)) {
-      if (parar == false) {
-        parar = true;
+      Serial.println("Caminho Livre");
 
-        Serial.println("PARA!!!");
-
-        // tone(pinBuzzer, 2500, 100);
-      }
-    } else {
-      if (parar == true) {
-        parar = false;
-
-        Serial.println("Caminho Livre");
-
-        // digitalWrite(pinBuzzer, LOW);
-      }
+      // digitalWrite(pinBuzzer, LOW);
     }
+  }
+}
 
-    if (parar) {
-      tone(pinBuzzer, 2500, 100);
-    } else {
-      digitalWrite(pinBuzzer, LOW);
-    }
-
-    contaObstaculo = 0;
-
-    if(posicao > medidaDist) {
-      posicao = 0;
-    }
+void ligarBuzzer(bool freio) {
+  if (freio) {
+    tone(pinBuzzer, 2500, 100);
+  } else {
+    digitalWrite(pinBuzzer, LOW);
   }
 }
