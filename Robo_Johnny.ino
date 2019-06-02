@@ -3,9 +3,9 @@
 #include <HCSR04.h> // inclui biblioteca ultrasonico.
 
 // DEFINIÇÕES DE PIENOS
-#define pinTrig 8
-#define pinEcho 9
-#define pinBuzzer 10
+#define pinTrig A0
+#define pinEcho A1
+#define pinBuzzer A2
 
 // DEFINIÇÕES DE PARAMETROS
 #define distObstaculo 10 // DISTANCIA EM CM PARA CONSIDERAR
