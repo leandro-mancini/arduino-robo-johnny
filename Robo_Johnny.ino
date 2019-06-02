@@ -5,10 +5,10 @@
 // DEFINIÇÕES DE PIENOS
 #define pinTrig 8
 #define pinEcho 9
-// #define pinBuzzer 4
+#define pinBuzzer 10
 
 // DEFINIÇÕES DE PARAMETROS
-#define distObstaculo 30 // DISTANCIA EM CM PARA CONSIDERAR
+#define distObstaculo 10 // DISTANCIA EM CM PARA CONSIDERAR
 #define tempoLeitura 50 // INTERVALO MINIMO ENTRE CADA LEITURA
 #define medidaDist 5 // QUANTIDADE DE MEDIDAS QUE SERAO ARMAZENADAS
 
@@ -34,6 +34,8 @@ void setup() {
     Serial.println(F("| Arduino com sensor de obstáculo Ultrassonico |"));
     Serial.println(F("| ============================================ |"));
   #endif
+
+  pinMode(pinBuzzer, OUTPUT);
 
   for (byte i = 0; i < medidaDist; i++) {
     medidaSensor[i] = 0;
@@ -81,7 +83,7 @@ void loop() {
 
         Serial.println("PARA!!!");
 
-        // Emit alguma coisa aqui.
+        // tone(pinBuzzer, 2500, 100);
       }
     } else {
       if (parar == true) {
@@ -89,8 +91,14 @@ void loop() {
 
         Serial.println("Caminho Livre");
 
-        // Emit alguma coisa aqui.
+        // digitalWrite(pinBuzzer, LOW);
       }
+    }
+
+    if (parar) {
+      tone(pinBuzzer, 2500, 100);
+    } else {
+      digitalWrite(pinBuzzer, LOW);
     }
 
     contaObstaculo = 0;
